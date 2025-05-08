@@ -74,3 +74,13 @@ for i in range(2, 9):  # Indeksy tabs[2] do tabs[8]
 
             st.subheader(f"📊 Podstawowe statystyki")
             st.dataframe(df_stats, use_container_width=True)
+
+        col4, col5 = st.columns([1, 1])
+        with col4:
+            st.image(f"app_plots/min_smoothness_{tor_num}.png", caption=f"Najbardziej gładki tor", use_container_width=True)
+            st.image(f"app_plots/min_stair_ratio_{tor_num}.png", caption=f"Tor z najmniejszym stair_ratio", use_container_width=True)
+
+        with col5:
+            st.image(f"app_plots/max_smoothness_{tor_num}.png", caption=f"Najmniej gładki tor", use_container_width=True)
+            st.image(f"app_plots/max_stair_ratio_{tor_num}.png", caption=f"Tor z największym stair_ratio", use_container_width=True)
+        st.markdown("Wykresy zostały wykonane na podstawie gier wykonanych w minimum 50%")
