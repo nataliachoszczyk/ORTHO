@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+from funcs import generate_plots
 
 # Ustawienia strony
 st.set_page_config(page_title="ORTHO", layout="wide")
@@ -84,3 +85,15 @@ for i in range(2, 9):  # Indeksy tabs[2] do tabs[8]
             st.image(f"app_plots/max_smoothness_{tor_num}.png", caption=f"Najmniej gładki tor", use_container_width=True)
             st.image(f"app_plots/max_stair_ratio_{tor_num}.png", caption=f"Tor z największym stair_ratio", use_container_width=True)
         st.markdown("Wykresy zostały wykonane na podstawie gier wykonanych w minimum 50%")
+        with st.spinner("Wykresy metryk", show_time=True):
+            metrics_plots = generate_plots(f"data/filtered_records_{tor_num}_metrics.jsonl")
+        st.subheader("📈 Wykresy metryk")
+        col6, col7 = st.columns([1, 1])
+        with col6:
+            st.pyplot(metrics_plots["hist_smoothness"])
+            st.pyplot(metrics_plots["smoothness_time_plot"])
+            st.pyplot(metrics_plots["scatter_plot"])   
+        with col7:  
+            st.pyplot(metrics_plots["hist_stair_ratio"])
+            st.pyplot(metrics_plots["stair_ratio_time_plot"])
+         
