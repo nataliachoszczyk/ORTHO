@@ -41,23 +41,23 @@ def generate_metrics_plots(tor_num):
     completed_games = data[data['track_Completed'] == True]
     completed_smoothnesses = completed_games['smoothness']
     completed_stair_ratios = completed_games['stair_ratio']
-    completed_times = completed_games['track_Time'] / 60  # to minutes
+    completed_times = completed_games['track_Time'] /1000 # to minutes
     completed_times = completed_times.round(2)
 
     # Smoothness vs time
     fig4, ax4 = plt.subplots()
     sns.scatterplot(x=completed_times, y=completed_smoothnesses, ax=ax4, color='#f5dd09')
     ax4.set_title('Smoothness vs Time')
-    ax4.set_xlabel('Smoothness')
-    ax4.set_ylabel('Czas (min)')
+    ax4.set_xlabel('Czas (s)')
+    ax4.set_ylabel('Smoothness')
     plots["smoothness_time_plot"] = fig4
 
     # Stair ratio vs time
     fig5, ax5 = plt.subplots()
     sns.scatterplot(x=completed_times, y=completed_stair_ratios, ax=ax5, color='#f5dd09')
     ax5.set_title('Stair Ratio vs Time')
-    ax5.set_xlabel('Stair Ratio')
-    ax5.set_ylabel('Czas (min)')
+    ax5.set_xlabel('Czas (s)')
+    ax5.set_ylabel('Stair Ratio')
     plots["stair_ratio_time_plot"] = fig5
 
 
