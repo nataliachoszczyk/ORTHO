@@ -2,12 +2,14 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 import streamlit as st
+import pickle
 
 # @st.cache_data
-def generate_plots(json_path):
-    data = pd.read_json(json_path, lines=True)
+def generate_metrics_plots(tor_num):
+    data = pd.read_json(f"data/filtered_records_{tor_num}_metrics.json", lines=True)
     smoothnesses = data['smoothness']
     stair_ratios = data['stair_ratio']
+
 
     plots = {}
 
@@ -58,4 +60,15 @@ def generate_plots(json_path):
     ax5.set_ylabel('Czas (min)')
     plots["stair_ratio_time_plot"] = fig5
 
+
+    path = "app_plots/" + str(tor_num) + "_metrics_plots.pkl"
+    with open(path, 'wb') as f:
+        pickle.dump(plots, f)
+    return plots
+
+
+def get_metrics_plots(tor_num):
+    path = "app_plots/" + str(tor_num) + "_metrics_plots.pkl"
+    with open(path, 'rb') as f:
+        plots = pickle.load(f)
     return plots

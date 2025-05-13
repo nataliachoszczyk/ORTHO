@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from funcs import generate_plots
+from funcs import generate_metrics_plots, get_metrics_plots
 
 # Ustawienia strony
 st.set_page_config(page_title="ORTHO", layout="wide")
@@ -14,6 +14,7 @@ tab_names = ["Home", "Wszystkie Tory"] + [f"Tor {i}" for i in range(1, 8)]
 
 # Tworzenie zakładek
 tabs = st.tabs(tab_names)
+
 
 # Zawartość zakładki Główna
 with tabs[0]:
@@ -36,6 +37,7 @@ with tabs[0]:
 
     Celem tej analizy jest lepsze zrozumienie, jak użytkownicy radzą sobie z grą, oraz jakie strategie prowadzą do skutecznej współpracy i ukończenia poziomu.
     """)
+    calculate_toggle = st.toggle("oblicz wszytsko od nowa")
 
 # Zawartość zakładki Wszystkie Tory
 with tabs[1]:
@@ -86,7 +88,10 @@ for i in range(2, 9):  # Indeksy tabs[2] do tabs[8]
             st.image(f"app_plots/max_stair_ratio_{tor_num}.png", caption=f"Tor z największym stair_ratio", use_container_width=True)
         st.markdown("Wykresy zostały wykonane na podstawie gier wykonanych w minimum 50%")
         with st.spinner("Wykresy metryk", show_time=True):
-            metrics_plots = generate_plots(f"data/filtered_records_{tor_num}_metrics.jsonl")
+            if calculate_toggle:
+                metrics_plots = generate_metrics_plots(tor_num)
+            else:
+                metrics_plots = get_metrics_plots(tor_num)
         st.subheader("📈 Wykresy metryk")
         col6, col7 = st.columns([1, 1])
         with col6:
