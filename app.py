@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
-from funcs import generate_metrics_plots, get_metrics_plots
+from funcs import generate_metrics_plots, get_metrics_plots, generate_all_tracks_plots, get_all_tracks_plots, generate_correlation_analysis_plots, get_correlation_analysis_plots
+import matplotlib.pyplot as plt
 
 # Ustawienia strony
 st.set_page_config(page_title="ORTHO", layout="wide")
@@ -32,18 +33,16 @@ with tabs[0]:
 
     Analizujemy m.in.:
     - **strategie ruchu** – np. czy gracze poruszają się płynnie, czy "schodkowo",
-    - **metryki przejścia toru** – takie jak płynność ruchu (`smoothness`) czy stosunek schodkowych ruchów (`stair ratio`),
+    - **metryki przejścia toru** – takie jak płynność ruchu (`smoothness`) czy stosunek schodkowych ruchów (`stair_ratio`),
     - **różnice między torami** – jak strategie zmieniają się w zależności od typu toru.
 
     Celem tej analizy jest lepsze zrozumienie, jak użytkownicy radzą sobie z grą, oraz jakie strategie prowadzą do skutecznej współpracy i ukończenia poziomu.
+             
+    ### 📈 Metryki
+    - `smoothness`: Mierzy płynność ruchu gracza. Wartości bliskie 0 oznaczają płynny ruch, podczas gdy większe wartości wskazują ruch z ostrymi zmianami kierunku.
+    - `stair_ratio`: Mierzy stosunek schodkowych ruchów do całkowitych ruchów. Wartości bliskie 0 oznaczają płynny ruch, podczas gdy wartości bliskie 1 wskazują na "schodkowy" ruch.
     """)
-    calculate_toggle = st.toggle("oblicz wszytsko od nowa")
-
-# Zawartość zakładki Wszystkie Tory
-with tabs[1]:
-    st.header("Wszystkie Tory")
-    st.markdown("Tutaj znajdują się zbiorcze dane lub wizualizacje dotyczące wszystkich torów.")
-    st.image(f"app_plots/tory.png", caption=f"Tory w grze ORTHO", use_container_width=True)
+    calculate_toggle = st.toggle("oblicz wszystko od nowa")
 
 # Zakładki Tor 1 – Tor 7
 stats_by_track = {
@@ -56,8 +55,74 @@ stats_by_track = {
     7: {"Liczba wszystkich gier": 424, "Liczba ukończonych gier": 174, "Procent ukończonych gier": "41.04%", "Średni czas gry (s)": 16.54, "Średni czas ukończonej gry (s)": 30.65, "Średni procent ukończenia gry": "58.42%"}
 }
 
+all_stats = {
+    "Liczba wszystkich gier": 64704, "Liczba ukończonych gier": 25533, "Procent ukończonych gier": "39.46%", "Średni czas gry (s)": 20.49, "Średni czas ukończonej gry (s)": 38.54, "Średni procent ukończenia gry": "58.67%"}
 
-for i in range(2, 9):  # Indeksy tabs[2] do tabs[8]
+
+####################### WSZYSTKIE TORY #######################
+with tabs[1]:
+    st.header("Wszystkie Tory")
+    st.markdown("Wykresy zostały wykonane na podstawie gier wykonanych w minimum 25%. Pozwala nam to wykluczyć gry, które ledwo zostały rozpoczęte i nie jesteśmy w stanie wyciągnąć na ich podstawie istotnych wniosków.")
+    st.image(f"app_plots/tory.png", caption=f"Tory w grze ORTHO", use_container_width=True)
+
+    with st.spinner("Wykresy metryk", show_time=True):
+        if calculate_toggle:
+            all_metrics_plots = generate_metrics_plots("1_to_7", completed=False)
+            all_tracks_plots = generate_all_tracks_plots()
+            correlation_analysis_plots = generate_correlation_analysis_plots()
+        else:
+            all_metrics_plots = get_metrics_plots("1_to_7")
+            all_tracks_plots = get_all_tracks_plots()
+            correlation_analysis_plots = get_correlation_analysis_plots()
+
+    col1, col2, col3 = st.columns([1, 1, 1])
+    with col1:
+        df_stats = pd.DataFrame({
+            "Statystyka": list(all_stats.keys()),
+            "Wartość": list(all_stats.values())
+        })
+
+        st.subheader(f"📊 Podstawowe statystyki")
+        st.dataframe(df_stats, use_container_width=True)
+    with col2:
+        st.pyplot(all_metrics_plots["hist_smoothness"])
+    with col3:
+        st.pyplot(all_metrics_plots["hist_stair_ratio"])
+    
+    st.subheader("Analiza ukończenia gry w zależności od wartości metryk")
+    col_s1, col_s2, col_s3 = st.columns([1, 1, 1])
+    with col_s1:
+        st.pyplot(all_tracks_plots["hist_smoothness_true"])
+    with col_s2:
+        st.pyplot(all_tracks_plots["hist_smoothness_false"])
+    with col_s3:
+        st.pyplot(all_tracks_plots["scatter_smoothness_vs_stair_ratio_colored"])
+
+    col_s4, col_s5, col_s6 = st.columns([1, 1, 1])
+    with col_s4:
+        st.pyplot(all_tracks_plots["hist_stair_ratio_true"])
+    with col_s5:
+        st.pyplot(all_tracks_plots["hist_stair_ratio_false"])
+    with col_s6:
+        st.pyplot(all_tracks_plots["scatter_smoothness_vs_stair_ratio_gradient"])
+
+    col_s7, col_s8, col_s9 = st.columns([1, 1, 1])
+    with col_s7:
+        st.pyplot(correlation_analysis_plots["boxplot_time"])
+    with col_s8:
+        st.pyplot(correlation_analysis_plots["boxplot_smoothness"])
+    with col_s9:
+        st.pyplot(correlation_analysis_plots["boxplot_stair_ratio"])
+    
+    col7, col8 = st.columns([1, 1])
+    with col7:
+        st.pyplot(correlation_analysis_plots["correlation_matrix"])
+
+
+
+    
+####################### POSZCZEGÓLNE TORY #######################
+for i in range(2, 9):
     with tabs[i]:
         tor_num = i - 1
         st.header(f"Tor {tor_num} – Analiza i Obraz")
@@ -77,8 +142,16 @@ for i in range(2, 9):  # Indeksy tabs[2] do tabs[8]
 
             st.subheader(f"📊 Podstawowe statystyki")
             st.dataframe(df_stats, use_container_width=True)
+        st.subheader("📉 Wykresy dla metryki `smoothness` i `stair_ratio`")
+        st.markdown("Wykresy zostały wykonane na podstawie gier wykonanych w minimum 50%, a rozkłady metryk są obliczane na podstawie gier ukończonych w 100%.")
 
-        col4, col5 = st.columns([1, 1])
+        with st.spinner("Wykresy metryk", show_time=True):
+            if calculate_toggle:
+                metrics_plots = generate_metrics_plots(tor_num)
+            else:
+                metrics_plots = get_metrics_plots(tor_num)
+
+        col4, col5, col6 = st.columns([1, 1, 1])
         with col4:
             st.image(f"app_plots/min_smoothness_{tor_num}.png", caption=f"Najbardziej gładki tor", use_container_width=True)
             st.image(f"app_plots/min_stair_ratio_{tor_num}.png", caption=f"Tor z najmniejszym stair_ratio", use_container_width=True)
@@ -86,19 +159,15 @@ for i in range(2, 9):  # Indeksy tabs[2] do tabs[8]
         with col5:
             st.image(f"app_plots/max_smoothness_{tor_num}.png", caption=f"Najmniej gładki tor", use_container_width=True)
             st.image(f"app_plots/max_stair_ratio_{tor_num}.png", caption=f"Tor z największym stair_ratio", use_container_width=True)
-        st.markdown("Wykresy zostały wykonane na podstawie gier wykonanych w minimum 50%")
-        with st.spinner("Wykresy metryk", show_time=True):
-            if calculate_toggle:
-                metrics_plots = generate_metrics_plots(tor_num)
-            else:
-                metrics_plots = get_metrics_plots(tor_num)
-        st.subheader("📈 Wykresy metryk")
-        col6, col7 = st.columns([1, 1])
+
         with col6:
             st.pyplot(metrics_plots["hist_smoothness"])
-            st.pyplot(metrics_plots["smoothness_time_plot"])
-            st.pyplot(metrics_plots["scatter_plot"])   
-        with col7:  
             st.pyplot(metrics_plots["hist_stair_ratio"])
+
+        col7, col8, col9 = st.columns([1, 1, 1])
+        with col7:
+            st.pyplot(metrics_plots["smoothness_time_plot"])
+        with col8:
             st.pyplot(metrics_plots["stair_ratio_time_plot"])
-         
+        with col9:
+             st.pyplot(metrics_plots["scatter_plot"])
