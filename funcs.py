@@ -143,7 +143,7 @@ def generate_all_tracks_plots():
         data["smoothness"],
         data["stair_ratio"],
         c=data["track_Completion_percent"],
-        cmap="spring",
+        cmap="YlOrRd",
         s=50,
         edgecolor='k'
     )
@@ -167,29 +167,39 @@ def get_all_tracks_plots():
         plots = pickle.load(f)
     return plots
 
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+import pickle
+import numpy as np
+
 def generate_correlation_analysis_plots():
-    # Wczytanie danych
+    # Load data
     path_to_data = "data/filtered_records_1_to_7_metrics.json"
     data = pd.read_json(path_to_data, lines=True)
 
-    # Przygotowanie zmiennych liczbowych do korelacji
+    # Prepare numerical columns
     data['track_Completed_numeric'] = data['track_Completed'].astype(int)
     data['track_Time_seconds'] = data['track_Time'] / 1000  # ms -> s
 
     numeric_cols = ['smoothness', 'stair_ratio', 'track_Time_seconds', 'track_Completion_percent', 'track_Completed_numeric']
     corr_data = data[numeric_cols]
 
-    # Obliczenie korelacji Pearsona
-    correlation_matrix = corr_data.corr(method='pearson')
-
-    # Tworzenie wykresów
     plots = {}
 
-    # Macierz korelacji
-    fig_corr, ax_corr = plt.subplots(figsize=(8, 6))
-    sns.heatmap(correlation_matrix, annot=True, cmap='spring', fmt=".2f", ax=ax_corr)
-    ax_corr.set_title("Macierz korelacji (Pearsona)")
-    plots["correlation_matrix"] = fig_corr
+    # Pearson correlation matrix
+    pearson_corr = corr_data.corr(method='pearson')
+    fig_pearson, ax_pearson = plt.subplots(figsize=(8, 6))
+    sns.heatmap(pearson_corr, annot=True, cmap='YlOrRd', fmt=".2f", ax=ax_pearson)
+    ax_pearson.set_title("Macierz korelacji (Pearsona)")
+    plots["pearson_correlation_matrix"] = fig_pearson
+
+    # Spearman correlation matrix
+    spearman_corr = corr_data.corr(method='spearman')
+    fig_spearman, ax_spearman = plt.subplots(figsize=(8, 6))
+    sns.heatmap(spearman_corr, annot=True, cmap='YlOrRd', fmt=".2f", ax=ax_spearman)
+    ax_spearman.set_title("Macierz korelacji (Spearmana)")
+    plots["spearman_correlation_matrix"] = fig_spearman
 
     # Boxplot smoothness vs track_Completed
     fig_smooth, ax_smooth = plt.subplots()
@@ -211,12 +221,13 @@ def generate_correlation_analysis_plots():
     ax_time.set_title("Time (sekundy) vs track_Completed (skala logarytmiczna)")
     plots["boxplot_time"] = fig_time
 
-    # Zapis wykresów
+    # Save all plots
     output_path = "app_plots/correlation_analysis_plots.pkl"
     with open(output_path, 'wb') as f:
         pickle.dump(plots, f)
 
     return plots
+
 
 
 def get_correlation_analysis_plots():

@@ -1,3 +1,5 @@
 games/
+games/
 .DS_Store
-data/*
+data/
+*.pyc
