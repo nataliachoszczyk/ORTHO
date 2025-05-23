@@ -2,7 +2,8 @@ import streamlit as st
 import pandas as pd
 from funcs import generate_metrics_plots, get_metrics_plots, generate_all_tracks_plots, get_all_tracks_plots, generate_correlation_analysis_plots, get_correlation_analysis_plots
 import matplotlib.pyplot as plt
-
+import os
+print("Current working directory:", os.getcwd())
 # Ustawienia strony
 st.set_page_config(page_title="ORTHO", layout="wide")
 
@@ -116,7 +117,9 @@ with tabs[1]:
     
     col7, col8 = st.columns([1, 1])
     with col7:
-        st.pyplot(correlation_analysis_plots["correlation_matrix"])
+        st.pyplot(correlation_analysis_plots["pearson_correlation_matrix"])
+    with col8:
+        st.pyplot(correlation_analysis_plots["spearman_correlation_matrix"])
 
 
 
