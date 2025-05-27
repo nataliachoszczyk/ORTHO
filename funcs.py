@@ -1,8 +1,8 @@
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
-import streamlit as st
 import pickle
+
 
 # @st.cache_data
 def generate_metrics_plots(tor_num, completed=True):
@@ -67,6 +67,15 @@ def generate_metrics_plots(tor_num, completed=True):
     ax5.set_ylabel('Stair Ratio')
     plots["stair_ratio_time_plot"] = fig5
 
+    # Correlation heatmap
+    numeric_cols = ['smoothness', 'stair_ratio', 'track_Time']
+    corr_data = completed_games[numeric_cols]
+
+    spearman_corr = corr_data.corr(method='spearman')
+    fig_spearman, ax_spearman = plt.subplots(figsize=(8, 6))
+    sns.heatmap(spearman_corr, annot=True, cmap='YlOrRd', fmt=".2f", ax=ax_spearman)
+    ax_spearman.set_title("Macierz korelacji (Spearmana) - ukończone")
+    plots["spearman_correlation_matrix_completed"] = fig_spearman
 
     path = "app_plots/" + str(tor_num) + "_metrics_plots.pkl"
     with open(path, 'wb') as f:
@@ -167,12 +176,6 @@ def get_all_tracks_plots():
         plots = pickle.load(f)
     return plots
 
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-import pickle
-import numpy as np
-
 def generate_correlation_analysis_plots():
     # Load data
     path_to_data = "data/filtered_records_1_to_7_metrics.json"
@@ -182,24 +185,30 @@ def generate_correlation_analysis_plots():
     data['track_Completed_numeric'] = data['track_Completed'].astype(int)
     data['track_Time_seconds'] = data['track_Time'] / 1000  # ms -> s
 
-    numeric_cols = ['smoothness', 'stair_ratio', 'track_Time_seconds', 'track_Completion_percent', 'track_Completed_numeric']
-    corr_data = data[numeric_cols]
+    numeric_cols_completed = ['smoothness', 'stair_ratio', 'track_Time_seconds', 'track_Completed_numeric']
+    numeric_cols_not_completed = ['smoothness', 'stair_ratio', 'track_Time_seconds', 'track_Completion_percent', 'track_Completed_numeric']
+    corr_data_completed = data[numeric_cols_completed]
+    corr_data_not_completed = data[numeric_cols_not_completed]
+    corr_data_completed = corr_data_completed[corr_data_completed['track_Completed_numeric'] == 1].drop(columns=['track_Completed_numeric'])
+    corr_data_not_completed = corr_data_not_completed[corr_data_not_completed['track_Completed_numeric'] == 0].drop(columns=['track_Completed_numeric'])
+
 
     plots = {}
 
-    # Pearson correlation matrix
-    pearson_corr = corr_data.corr(method='pearson')
-    fig_pearson, ax_pearson = plt.subplots(figsize=(8, 6))
-    sns.heatmap(pearson_corr, annot=True, cmap='YlOrRd', fmt=".2f", ax=ax_pearson)
-    ax_pearson.set_title("Macierz korelacji (Pearsona)")
-    plots["pearson_correlation_matrix"] = fig_pearson
-
-    # Spearman correlation matrix
-    spearman_corr = corr_data.corr(method='spearman')
+    # Spearman correlation matrix - completed
+    spearman_corr = corr_data_completed.corr(method='spearman')
     fig_spearman, ax_spearman = plt.subplots(figsize=(8, 6))
     sns.heatmap(spearman_corr, annot=True, cmap='YlOrRd', fmt=".2f", ax=ax_spearman)
-    ax_spearman.set_title("Macierz korelacji (Spearmana)")
-    plots["spearman_correlation_matrix"] = fig_spearman
+    ax_spearman.set_title("Macierz korelacji (Spearmana) - ukończone")
+    plots["spearman_correlation_matrix_completed"] = fig_spearman
+
+    # Spearman correlation matrix - not completed
+    spearman_corr = corr_data_not_completed.corr(method='spearman')
+    spearman_corr = corr_data_not_completed.corr(method='spearman')
+    fig_spearman, ax_spearman = plt.subplots(figsize=(8, 6))
+    sns.heatmap(spearman_corr, annot=True, cmap='YlOrRd', fmt=".2f", ax=ax_spearman)
+    ax_spearman.set_title("Macierz korelacji (Spearmana) - nieukończone")
+    plots["spearman_correlation_matrix_not_completed"] = fig_spearman
 
     # Boxplot smoothness vs track_Completed
     fig_smooth, ax_smooth = plt.subplots()
