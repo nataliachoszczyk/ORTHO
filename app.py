@@ -42,6 +42,12 @@ with tabs[0]:
     ### 📈 Metryki
     - `smoothness`: Mierzy płynność ruchu gracza. Wartości bliskie 0 oznaczają płynny ruch, podczas gdy większe wartości wskazują ruch z ostrymi zmianami kierunku.
     - `stair_ratio`: Mierzy stosunek schodkowych ruchów do całkowitych ruchów. Wartości bliskie 0 oznaczają płynny ruch, podczas gdy wartości bliskie 1 wskazują na "schodkowy" ruch.
+
+    #### Literatura:
+    K. Potęga vel Żabik, D. Abrahamson, I. Iłowiecka-Tańska, "It Takes Two to OЯTHO: A Tabletop Action-Based Embodied Design for the Cartesian System",  [Link](https://link.springer.com/article/10.1007/s40751-024-00139-8)       
+                      
+    ##### Autorzy:
+    Natalia Choszczyk, Mateusz Deptuch, Aleksandra Samsel 
     """)
     calculate_toggle = st.toggle("oblicz wszystko od nowa")
 
@@ -117,9 +123,9 @@ with tabs[1]:
     
     col7, col8 = st.columns([1, 1])
     with col7:
-        st.pyplot(correlation_analysis_plots["pearson_correlation_matrix"])
+        st.pyplot(correlation_analysis_plots["spearman_correlation_matrix_completed"])
     with col8:
-        st.pyplot(correlation_analysis_plots["spearman_correlation_matrix"])
+        st.pyplot(correlation_analysis_plots["spearman_correlation_matrix_not_completed"])
 
 
 
@@ -174,3 +180,6 @@ for i in range(2, 9):
             st.pyplot(metrics_plots["stair_ratio_time_plot"])
         with col9:
              st.pyplot(metrics_plots["scatter_plot"])
+        col10, col11 = st.columns([1, 1])
+        with col10:
+            st.pyplot(metrics_plots["spearman_correlation_matrix_completed"])
