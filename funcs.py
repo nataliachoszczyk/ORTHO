@@ -67,20 +67,12 @@ def generate_metrics_plots(tor_num, completed=True):
     ax5.set_ylabel('Stair Ratio')
     plots["stair_ratio_time_plot"] = fig5
 
-    # Correlation heatmap
-    numeric_cols = ['smoothness', 'stair_ratio', 'track_Time']
-    corr_data = completed_games[numeric_cols]
-
-    spearman_corr = corr_data.corr(method='spearman')
-    fig_spearman, ax_spearman = plt.subplots(figsize=(8, 6))
-    sns.heatmap(spearman_corr, annot=True, cmap='YlOrRd', fmt=".2f", ax=ax_spearman)
-    ax_spearman.set_title("Macierz korelacji (Spearmana) - ukończone")
-    plots["spearman_correlation_matrix_completed"] = fig_spearman
 
     path = "app_plots/" + str(tor_num) + "_metrics_plots.pkl"
     with open(path, 'wb') as f:
         pickle.dump(plots, f)
     return plots
+
 
 
 def get_metrics_plots(tor_num):
@@ -89,8 +81,46 @@ def get_metrics_plots(tor_num):
         plots = pickle.load(f)
     return plots
 
+def generate_route_plots(tor_num):
+    data = pd.read_json(f"data/filtered_records_{tor_num}_metrics.json", lines=True)
+    data = data[data["track_Completion_percent"] >= 0.25]
+
+    num_tracks = len(data)
+    alpha = min(1.0, 35 / num_tracks)
+
+    fig, ax = plt.subplots(figsize=(6, 6))
+
+    for _, row in data.iterrows():
+        points_dict = row['Points']
+        cols = points_dict['columns']
+        points_data = points_dict['data']
+
+        points_df = pd.DataFrame(points_data, columns=cols)
+        ax.plot(points_df['X'], points_df['Y'], alpha=alpha, color="#f5b209", linewidth=0.5)
+
+    ax.set_title("Najczęstsze ścieżki ruchu (zagęszczenie torów)")
+    ax.set_xlabel("X")
+    ax.set_ylabel("Y")
+    ax.grid(True)
+    ax.set_aspect('equal')
+
+
+    # Save as PNG image (not pickle!)
+    path = f"app_plots/route_plots_{tor_num}.png"
+    fig.savefig(path, dpi=300, bbox_inches='tight')
+
+    plt.close(fig)  # Close the figure to free memory if used in a loop
+
+    return fig  # or return fig if needed for display
+
+def get_route_plots(tor_num):
+    path = f"app_plots/route_plots_{tor_num}.png"
+    with open(path, 'rb') as f:
+        plot= pickle.load(f)
+    return plot
+
 def generate_all_tracks_plots():
-    data_path = "data/filtered_records_1_to_7_metrics.json"
+    data_path = "data/filtered_records_1_to_7_noXY_metrics.json"
     data = pd.read_json(data_path, lines=True)
     plots = {}
 
@@ -176,9 +206,9 @@ def get_all_tracks_plots():
         plots = pickle.load(f)
     return plots
 
-def generate_correlation_analysis_plots():
+def generate_correlation_analysis_plots(track_num):
     # Load data
-    path_to_data = "data/filtered_records_1_to_7_metrics.json"
+    path_to_data = f"data/filtered_records_{track_num}_metrics.json"
     data = pd.read_json(path_to_data, lines=True)
 
     # Prepare numerical columns
@@ -190,48 +220,66 @@ def generate_correlation_analysis_plots():
     corr_data_completed = data[numeric_cols_completed]
     corr_data_not_completed = data[numeric_cols_not_completed]
     corr_data_completed = corr_data_completed[corr_data_completed['track_Completed_numeric'] == 1].drop(columns=['track_Completed_numeric'])
-    corr_data_not_completed = corr_data_not_completed[corr_data_not_completed['track_Completed_numeric'] == 0].drop(columns=['track_Completed_numeric'])
-
+    corr_data_not_completed = corr_data_not_completed[
+    (corr_data_not_completed['track_Completed_numeric'] == 0) &
+    (corr_data_not_completed['track_Completion_percent'] >= 0.25)
+].drop(columns=['track_Completed_numeric'])
 
     plots = {}
 
+    label_map = {
+    'smoothness': 'Smoothness',
+    'stair_ratio': 'Stair Ratio',
+    'track_Time_seconds': 'Time (s)',
+    'track_Completion_percent': 'Completion rate',
+    }
+
+    
     # Spearman correlation matrix - completed
     spearman_corr = corr_data_completed.corr(method='spearman')
+    display_labels = [label_map.get(col, col) for col in spearman_corr.columns]
     fig_spearman, ax_spearman = plt.subplots(figsize=(8, 6))
-    sns.heatmap(spearman_corr, annot=True, cmap='YlOrRd', fmt=".2f", ax=ax_spearman)
+    sns.heatmap(spearman_corr, annot=True, cmap='YlOrRd', fmt=".2f", ax=ax_spearman, xticklabels=display_labels,
+    yticklabels=display_labels)
+    ax_spearman.set_xticklabels(ax_spearman.get_xticklabels(), rotation=0, ha='center')
+    ax_spearman.set_yticklabels(ax_spearman.get_yticklabels(), rotation=90, va='center')
+    
     ax_spearman.set_title("Macierz korelacji (Spearmana) - ukończone")
     plots["spearman_correlation_matrix_completed"] = fig_spearman
 
     # Spearman correlation matrix - not completed
     spearman_corr = corr_data_not_completed.corr(method='spearman')
-    spearman_corr = corr_data_not_completed.corr(method='spearman')
+    display_labels = [label_map.get(col, col) for col in spearman_corr.columns]
     fig_spearman, ax_spearman = plt.subplots(figsize=(8, 6))
-    sns.heatmap(spearman_corr, annot=True, cmap='YlOrRd', fmt=".2f", ax=ax_spearman)
+    sns.heatmap(spearman_corr, annot=True, cmap='YlOrRd', fmt=".2f", ax=ax_spearman, xticklabels=display_labels,
+    yticklabels=display_labels)
+    ax_spearman.set_xticklabels(ax_spearman.get_xticklabels(), rotation=0, ha='center')
+    ax_spearman.set_yticklabels(ax_spearman.get_yticklabels(), rotation=90, va='center')
     ax_spearman.set_title("Macierz korelacji (Spearmana) - nieukończone")
     plots["spearman_correlation_matrix_not_completed"] = fig_spearman
 
     # Boxplot smoothness vs track_Completed
     fig_smooth, ax_smooth = plt.subplots()
-    sns.boxplot(x='track_Completed', y='smoothness', data=data, ax=ax_smooth, color='#f5dd09')
+    sns.boxplot(x='track_Completed', y='smoothness', data=data, ax=ax_smooth,  boxprops=dict(facecolor='#f5dd09', color='#f5dd09'))
     ax_smooth.set_yscale('log')
     ax_smooth.set_title("Smoothness vs track_Completed (skala logarytmiczna)")
     plots["boxplot_smoothness"] = fig_smooth
 
     # Boxplot stair_ratio vs track_Completed
     fig_stair, ax_stair = plt.subplots()
-    sns.boxplot(x='track_Completed', y='stair_ratio', data=data, ax=ax_stair, color='#f5dd09')
+    sns.boxplot(x='track_Completed', y='stair_ratio', data=data, ax=ax_stair,  boxprops=dict(facecolor='#f5dd09', color='#f5dd09'))
     ax_stair.set_title("Stair Ratio vs track_Completed")
     plots["boxplot_stair_ratio"] = fig_stair
 
     # Boxplot time vs track_Completed
     fig_time, ax_time = plt.subplots()
-    sns.boxplot(x='track_Completed', y='track_Time_seconds', data=data, ax=ax_time, color='#f5dd09')
+    sns.boxplot(x='track_Completed', y='track_Time_seconds', data=data, ax=ax_time,  boxprops=dict(facecolor='#f5dd09', color='#f5dd09'))
     ax_time.set_yscale('log')
     ax_time.set_title("Time (sekundy) vs track_Completed (skala logarytmiczna)")
     plots["boxplot_time"] = fig_time
 
     # Save all plots
-    output_path = "app_plots/correlation_analysis_plots.pkl"
+    output_path = f"app_plots/correlation_analysis_plots_{track_num}.pkl"
     with open(output_path, 'wb') as f:
         pickle.dump(plots, f)
 
@@ -239,7 +287,7 @@ def generate_correlation_analysis_plots():
 
 
 
-def get_correlation_analysis_plots():
-    with open("app_plots/correlation_analysis_plots.pkl", 'rb') as f:
+def get_correlation_analysis_plots(track_num):
+    with open(f"app_plots/correlation_analysis_plots_{track_num}.pkl", 'rb') as f:
         plots = pickle.load(f)
     return plots

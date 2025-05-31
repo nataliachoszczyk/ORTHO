@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from funcs import generate_metrics_plots, get_metrics_plots, generate_all_tracks_plots, get_all_tracks_plots, generate_correlation_analysis_plots, get_correlation_analysis_plots
+from funcs import generate_metrics_plots, get_metrics_plots, generate_all_tracks_plots, get_all_tracks_plots, generate_correlation_analysis_plots, get_correlation_analysis_plots, generate_route_plots, get_route_plots
 import matplotlib.pyplot as plt
 import os
 print("Current working directory:", os.getcwd())
@@ -27,22 +27,36 @@ with tabs[0]:
     Gra stanowi świetne wprowadzenie do **pojęcia układu współrzędnych** i rozwija umiejętności miękkie, takie jak **cierpliwość i współpraca**.
 
     ### 🔍 Cel analizy
-
-    Nasza analiza koncentruje się na **poziomie trudności 0**, czyli podstawowym wariancie gry, w którym każdy gracz manualnie steruje ruchem wyłącznie w jednej osi.
+    Celem tej analizy jest lepsze zrozumienie, jak użytkownicy radzą sobie z grą, oraz jakie strategie prowadzą do skutecznej współpracy i ukończenia poziomu. Pytanie które sobie zadaliśmy brzmi: W jaki sposób dobór strategii poruszania się wpływa na szybkość przejścia poziomu oraz szansę na przejście go do końca.
+   
 
     ### 📊 Co badamy?
-
+    Nasza analiza koncentruje się na **poziomie trudności 0**, czyli podstawowym wariancie gry, w którym każdy gracz manualnie steruje ruchem wyłącznie w jednej osi.
+                
     Analizujemy m.in.:
     - **strategie ruchu** – np. czy gracze poruszają się płynnie, czy "schodkowo",
     - **metryki przejścia toru** – takie jak płynność ruchu (`smoothness`) czy stosunek schodkowych ruchów (`stair_ratio`),
     - **różnice między torami** – jak strategie zmieniają się w zależności od typu toru.
 
-    Celem tej analizy jest lepsze zrozumienie, jak użytkownicy radzą sobie z grą, oraz jakie strategie prowadzą do skutecznej współpracy i ukończenia poziomu.
+    
              
     ### 📈 Metryki
     - `smoothness`: Mierzy płynność ruchu gracza. Wartości bliskie 0 oznaczają płynny ruch, podczas gdy większe wartości wskazują ruch z ostrymi zmianami kierunku.
-    - `stair_ratio`: Mierzy stosunek schodkowych ruchów do całkowitych ruchów. Wartości bliskie 0 oznaczają płynny ruch, podczas gdy wartości bliskie 1 wskazują na "schodkowy" ruch.
+""")
+    st.markdown(r"""
+$$
+\text{smoothness} = \frac{\sum_{i} (\arccos(\cos(\theta_i)))^2}{\sum_{j} \text{długość}_j} \\
+\text{gdzie } \theta_i \text{ to kąt pomiędzy wektorami kolejnych odcinków ruchu.}
+$$
+""")
+    st.markdown("""
 
+
+    - `stair_ratio`: Mierzy stosunek schodkowych ruchów do całkowitych ruchów. Wartości bliskie 0 oznaczają płynny ruch, podczas gdy wartości bliskie 1 wskazują na "schodkowy" ruch.
+        $$
+      \\text{stair\\_ratio} = \\frac{\\text{liczba kroków ze zmianą tylko wsółrzędnej X lub tylko współrzędnej Y}}{\\text{liczba wszystkich kroków}}
+      $$
+                
     #### Literatura:
     K. Potęga vel Żabik, D. Abrahamson, I. Iłowiecka-Tańska, "It Takes Two to OЯTHO: A Tabletop Action-Based Embodied Design for the Cartesian System",  [Link](https://link.springer.com/article/10.1007/s40751-024-00139-8)       
                       
@@ -74,13 +88,13 @@ with tabs[1]:
 
     with st.spinner("Wykresy metryk", show_time=True):
         if calculate_toggle:
-            all_metrics_plots = generate_metrics_plots("1_to_7", completed=False)
+            all_metrics_plots = generate_metrics_plots("1_to_7_noXY", completed=False)
             all_tracks_plots = generate_all_tracks_plots()
-            correlation_analysis_plots = generate_correlation_analysis_plots()
+            correlation_analysis_plots = generate_correlation_analysis_plots("1_to_7_noXY")
         else:
-            all_metrics_plots = get_metrics_plots("1_to_7")
+            all_metrics_plots = get_metrics_plots("1_to_7_noXY")
             all_tracks_plots = get_all_tracks_plots()
-            correlation_analysis_plots = get_correlation_analysis_plots()
+            correlation_analysis_plots = get_correlation_analysis_plots("1_to_7_noXY")
 
     col1, col2, col3 = st.columns([1, 1, 1])
     with col1:
@@ -127,6 +141,7 @@ with tabs[1]:
     with col8:
         st.pyplot(correlation_analysis_plots["spearman_correlation_matrix_not_completed"])
 
+    st.markdown("Jak widać, metryki 'smoothness' i 'stair_ratio' wykazują znaczącą korelację z czasem ukończenia gry (Im bardziej gładki ruch, tym krótszy czas ukończenia gry, im mniej schodkowy ruch, tym krótszy czas ukończenia gry). Jednakże, żadna z metryk nie jest skorelowana z procentem ukończenia gry. Oznacza to, że gracze mogą ukończyć grę nawet przy dużych wartościach metryk, ale ich czas przejścia będzie dłuższy.")
 
 
     
@@ -157,8 +172,10 @@ for i in range(2, 9):
         with st.spinner("Wykresy metryk", show_time=True):
             if calculate_toggle:
                 metrics_plots = generate_metrics_plots(tor_num)
+                correlation_analysis_plots = generate_correlation_analysis_plots(tor_num)
             else:
                 metrics_plots = get_metrics_plots(tor_num)
+                correlation_analysis_plots = get_correlation_analysis_plots(tor_num)
 
         col4, col5, col6 = st.columns([1, 1, 1])
         with col4:
@@ -172,7 +189,6 @@ for i in range(2, 9):
         with col6:
             st.pyplot(metrics_plots["hist_smoothness"])
             st.pyplot(metrics_plots["hist_stair_ratio"])
-
         col7, col8, col9 = st.columns([1, 1, 1])
         with col7:
             st.pyplot(metrics_plots["smoothness_time_plot"])
@@ -180,6 +196,41 @@ for i in range(2, 9):
             st.pyplot(metrics_plots["stair_ratio_time_plot"])
         with col9:
              st.pyplot(metrics_plots["scatter_plot"])
-        col10, col11 = st.columns([1, 1])
-        with col10:
-            st.pyplot(metrics_plots["spearman_correlation_matrix_completed"])
+
+        col_s1, col_s2, col_s3 = st.columns([1, 1, 1])
+        with col_s1:
+            st.pyplot(all_tracks_plots["hist_smoothness_true"])
+        with col_s2:
+            st.pyplot(all_tracks_plots["hist_smoothness_false"])
+        with col_s3:
+            st.pyplot(all_tracks_plots["scatter_smoothness_vs_stair_ratio_colored"])
+
+        col_s4, col_s5, col_s6 = st.columns([1, 1, 1])
+        with col_s4:
+            st.pyplot(all_tracks_plots["hist_stair_ratio_true"])
+        with col_s5:
+            st.pyplot(all_tracks_plots["hist_stair_ratio_false"])
+        with col_s6:
+            st.pyplot(all_tracks_plots["scatter_smoothness_vs_stair_ratio_gradient"])
+
+        col_s7, col_s8, col_s9 = st.columns([1, 1, 1])
+        with col_s7:
+            st.pyplot(correlation_analysis_plots["boxplot_time"])
+        with col_s8:
+            st.pyplot(correlation_analysis_plots["boxplot_smoothness"])
+        with col_s9:
+            st.pyplot(correlation_analysis_plots["boxplot_stair_ratio"])
+        
+        col_s10, col_s11 = st.columns([1, 1])
+        with col_s10:
+            st.pyplot(correlation_analysis_plots["spearman_correlation_matrix_completed"])
+        with col_s11:
+            st.pyplot(correlation_analysis_plots["spearman_correlation_matrix_not_completed"])
+
+            if calculate_toggle:
+                routes_plot = generate_route_plots(tor_num)
+            else:   
+                routes_plot = get_route_plots(tor_num)
+            with col_s10:
+                st.pyplot(routes_plot)
+        st.markdown("Powyższy wykres przedstawia wszystkie trasy (ukończone w przynajmjiej 25%), które zostały wykonane przez graczy.")
