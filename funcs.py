@@ -307,7 +307,7 @@ def best_strategy(track_id):
         'Wysokie stair ratio i wysoka gładkość',
         'Brak strategii - mało danych'
     ]
-    tracks_df = pd.read_csv('data/tracks_strategy.csv', sep=';')
+    tracks_df = pd.read_csv('tracks_strategy.csv', sep=';')
 
     return plot_track(track_id, tracks_df, strategy_names, strategy_colors, strategy_labels)
 
