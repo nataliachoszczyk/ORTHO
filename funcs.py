@@ -106,10 +106,8 @@ def generate_route_plots(tor_num):
     ax.grid(True)
     ax.set_aspect('equal')
 
-
-    # Save as PNG image (not pickle!)
     path = f"app_plots/route_plots_{tor_num}.png"
-    fig.savefig(path, dpi=300, bbox_inches='tight')
+    plt.savefig(path, bbox_inches='tight', dpi=300)
 
     plt.close(fig)  # Close the figure to free memory if used in a loop
 
@@ -117,8 +115,8 @@ def generate_route_plots(tor_num):
 
 def get_route_plots(tor_num):
     path = f"app_plots/route_plots_{tor_num}.png"
-    with open(path, 'rb') as f:
-        plot= pickle.load(f)
+    # return the png
+    plot = plt.imread(path)
     return plot
 
 def generate_all_tracks_plots():

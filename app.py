@@ -272,7 +272,7 @@ for i in range(2, 9):
             else:
                 routes_plot = get_route_plots(tor_num)
             with col_s10:
-                st.pyplot(routes_plot)
-        st.markdown("Powyższy wykres przedstawia wszystkie trasy (ukończone w przynajmjiej 25%), które zostały wykonane przez graczy.")
+                st.image(routes_plot)
+                st.markdown("Powyższy wykres przedstawia wszystkie trasy (ukończone w przynajmjiej 25%), które zostały wykonane przez graczy.")
 
 
