@@ -2,6 +2,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 import pickle
+import numpy as np
+from matplotlib.patches import Patch
 
 
 # @st.cache_data
@@ -286,8 +288,65 @@ def generate_correlation_analysis_plots(track_num):
     return plots
 
 
-
 def get_correlation_analysis_plots(track_num):
     with open(f"app_plots/correlation_analysis_plots_{track_num}.pkl", 'rb') as f:
         plots = pickle.load(f)
     return plots
+
+
+def best_strategy(track_id):
+
+    cmap = plt.get_cmap('YlOrRd')
+    positions = np.linspace(0, 1, 4)
+    strategy_colors = [cmap(pos) for pos in positions] + ['#303030']
+    strategy_names = ['SR_0_SM_0', 'SR_0_SM_1', 'SR_1_SM_0', 'SR_1_SM_1', 'brak']
+    strategy_labels = [
+        'Niskie stair ratio i niska gładkość',
+        'Niskie stair ratio i wysoka gładkość',
+        'Wysokie stair ratio i niska gładkość',
+        'Wysokie stair ratio i wysoka gładkość',
+        'Brak strategii - mało danych'
+    ]
+    tracks_df = pd.read_csv('data/tracks_strategy.csv', sep=';')
+
+    return plot_track(track_id, tracks_df, strategy_names, strategy_colors, strategy_labels)
+
+def plot_track(track_id, tracks, strategy_names, strategy_colors, strategy_labels):
+
+    plt.figure(figsize=(8,8))
+    ax = plt.gca()
+    ax.set_aspect('equal', adjustable='box')
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+
+    track_data = tracks[tracks['track_id_x'] == track_id]
+
+    for t in track_data['track_type'].unique():
+        type_data = track_data[track_data['track_type'] == t]
+
+        for strategy, color in zip(strategy_names, strategy_colors):
+            strategy_data = type_data[type_data['best_strategy'] == strategy]
+            if not strategy_data.empty:
+                ax.scatter(
+                    strategy_data['x'],
+                    strategy_data['y'],
+                    color=color,
+                    alpha=1,
+                    s=100
+                )
+
+    legend_handles = []
+    for label, color in zip(strategy_labels, strategy_colors):
+        patch = Patch(facecolor=color, edgecolor='k', label=label, alpha=1.0)
+        legend_handles.append(patch)
+
+    ax.legend(
+        handles=legend_handles,
+        title='Najlepsza strategia dla danego fragmentu toru',
+        loc='upper left',
+        bbox_to_anchor=(1.05, 1.0),
+        borderaxespad=0.0
+    )
+
+    plt.tight_layout()
+    return plt
