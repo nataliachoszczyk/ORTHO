@@ -7,10 +7,10 @@ import matplotlib.pyplot as plt
 import os
 print("Current working directory:", os.getcwd())
 # Ustawienia strony
-st.set_page_config(page_title="ORTHO", layout="wide")
+st.set_page_config(page_title="OЯTHO", layout="wide")
 
 # Tytuł główny
-st.title("💡 ORTHO")
+st.title("💡 OЯTHO")
 st.subheader("Analiza przyjmowanych strategii w edukacyjnej grze interaktywnej.")
 
 # Lista nazw zakładek
@@ -24,17 +24,18 @@ tabs = st.tabs(tab_names)
 with tabs[0]:
     st.header("Wprowadzenie")
     st.markdown("""
-        Witamy w interaktywnej analizie gry edukacyjnej **ORTHO**, dostępnej w Centrum Nauki Kopernik. ORTHO to kooperacyjna gra dla dwóch graczy, której celem jest wspólne przeprowadzenie kulki przez wirtualny tor. Jeden z graczy kontroluje ruch w osi **X**, a drugi w osi **Y** — sukces wymaga współpracy, komunikacji oraz dobrej koordynacji.
+        Witamy w interaktywnej analizie gry edukacyjnej **OЯTHO**, dostępnej w Centrum Nauki Kopernik. OЯTHO to kooperacyjna gra dla dwóch graczy, której celem jest wspólne przeprowadzenie kulki przez wirtualny tor. Jeden z graczy kontroluje ruch w osi **X**, a drugi w osi **Y** — sukces wymaga współpracy, komunikacji oraz dobrej koordynacji.
     
         Gra stanowi świetne wprowadzenie do **pojęcia układu współrzędnych** i rozwija umiejętności miękkie, takie jak **cierpliwość i współpraca**.
     
         ### 🔍 Cel analizy
-        Celem tej analizy jest lepsze zrozumienie, jak użytkownicy radzą sobie z grą, oraz jakie strategie prowadzą do skutecznej współpracy i ukończenia poziomu. Pytanie które sobie zadaliśmy brzmi: W jaki sposób dobór strategii poruszania się wpływa na szybkość przejścia poziomu oraz szansę na przejście go do końca.
+        Celem tej analizy jest lepsze zrozumienie, jak użytkownicy radzą sobie z grą, oraz jakie strategie prowadzą do skutecznej współpracy i ukończenia poziomu. Sprawdzamy w jaki sposób dobór strategii poruszania się wpływa na szybkość przejścia poziomu oraz szansę na przejście go do końca.
        
     
         ### 📊 Co badamy?
         Nasza analiza koncentruje się na **poziomie trudności 0**, czyli podstawowym wariancie gry, w którym każdy gracz manualnie steruje ruchem wyłącznie w jednej osi.
-                    
+
+                   
         Analizujemy m.in.:
         - **strategie ruchu** – np. czy gracze poruszają się płynnie, czy "schodkowo",
         - **metryki przejścia toru** – takie jak płynność ruchu (`smoothness`) czy stosunek schodkowych ruchów (`stair_ratio`),
@@ -57,6 +58,7 @@ with tabs[0]:
         $$
       \\text{stair\\_ratio} = \\frac{\\text{liczba kroków ze zmianą tylko wsółrzędnej X lub tylko współrzędnej Y}}{\\text{liczba wszystkich kroków}}
       $$
+
     """)
 
     st.markdown(r"""
@@ -75,6 +77,9 @@ with tabs[0]:
         \frac{\#\{m \neq M,\,y = Y\}}{\#\{m \neq M,\,y \geq Y\}}
     }
     $$  
+    ### ❓ Pytania badawcze:
+    - W jaki sposób dwie metryki ruchu – smoothness i stair_ratio – wpływają na prawdopodobieństwo ukończenia oraz czas przejścia toru?
+    - Czy optymalna kombinacja tych metryk - trajectory_strategy_bias - zmienia się w zależności od odcinka trasy?
                 
     #### Literatura:
     K. Potęga vel Żabik, D. Abrahamson, I. Iłowiecka-Tańska, "It Takes Two to OЯTHO: A Tabletop Action-Based Embodied Design for the Cartesian System",  [Link](https://link.springer.com/article/10.1007/s40751-024-00139-8)       
@@ -103,7 +108,7 @@ all_stats = {
 with tabs[1]:
     st.header("Wszystkie Tory")
     st.markdown("Wykresy zostały wykonane na podstawie gier wykonanych w minimum 25%. Pozwala nam to wykluczyć gry, które ledwo zostały rozpoczęte i nie jesteśmy w stanie wyciągnąć na ich podstawie istotnych wniosków.")
-    st.image(f"app_plots/tory.png", caption=f"Tory w grze ORTHO", use_container_width=True)
+    st.image(f"app_plots/tory.png", caption=f"Tory w grze OЯTHO", use_container_width=True)
 
     with st.spinner("Wykresy metryk", show_time=True):
         if calculate_toggle:
@@ -255,7 +260,7 @@ for i in range(2, 9):
 
         col_s12, col_s13, col_s14 = st.columns([1, 5, 1])
         with col_s13:
-            st.markdown("Poniższy wykres wizualizuje trasę podzieloną na odcinki, gdzie kolor odcinka odpowiada najskuteczniejszej strategii"
+            st.markdown("Poniższy wykres wizualizuje trasę podzieloną na odcinki, gdzie kolor odcinka odpowiada najskuteczniejszej strategii "
                         "na tym właśnie fragmencie. Najlepsza strategia jest wybrana na podstawie metryki `trajectory_strategy_bias`."
                         "Im mniejsza wartość tej metryki, tym lepsza strategia dla danego fragmentu toru.")
             st.pyplot(best_strategy(tor_num))
