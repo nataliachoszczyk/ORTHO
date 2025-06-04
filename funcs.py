@@ -239,17 +239,8 @@ def generate_correlation_analysis_plots(track_num):
     spearman_corr = corr_data_completed.corr(method='spearman')
     display_labels = [label_map.get(col, col) for col in spearman_corr.columns]
     fig_spearman, ax_spearman = plt.subplots(figsize=(8, 6))
-    sns.heatmap(
-        spearman_corr,
-        annot=True,
-        cmap='YlOrRd',
-        fmt=".2f",
-        ax=ax_spearman,
-        xticklabels=display_labels,
-        yticklabels=display_labels,
-        vmin=-0.05,
-        vmax=1
-    )
+    sns.heatmap(spearman_corr, annot=True, cmap='YlOrRd', fmt=".2f", ax=ax_spearman, xticklabels=display_labels,
+    yticklabels=display_labels)
     ax_spearman.set_xticklabels(ax_spearman.get_xticklabels(), rotation=0, ha='center')
     ax_spearman.set_yticklabels(ax_spearman.get_yticklabels(), rotation=90, va='center')
     
@@ -260,15 +251,8 @@ def generate_correlation_analysis_plots(track_num):
     spearman_corr = corr_data_not_completed.corr(method='spearman')
     display_labels = [label_map.get(col, col) for col in spearman_corr.columns]
     fig_spearman, ax_spearman = plt.subplots(figsize=(8, 6))
-    sns.heatmap(spearman_corr, 
-                annot=True, 
-                cmap='YlOrRd', 
-                fmt=".2f", 
-                ax=ax_spearman, 
-                xticklabels=display_labels,
-                yticklabels=display_labels,
-                vmin=-0.05,
-                vmax=1)
+    sns.heatmap(spearman_corr, annot=True, cmap='YlOrRd', fmt=".2f", ax=ax_spearman, xticklabels=display_labels,
+    yticklabels=display_labels)
     ax_spearman.set_xticklabels(ax_spearman.get_xticklabels(), rotation=0, ha='center')
     ax_spearman.set_yticklabels(ax_spearman.get_yticklabels(), rotation=90, va='center')
     ax_spearman.set_title("Macierz korelacji (Spearmana) - nieukończone")
