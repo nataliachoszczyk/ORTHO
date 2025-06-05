@@ -24,7 +24,7 @@ tabs = st.tabs(tab_names)
 with tabs[0]:
     st.header("Wprowadzenie")
     st.markdown("""
-        Witamy w interaktywnej analizie gry edukacyjnej **OЯTHO**, dostępnej w Centrum Nauki Kopernik. OЯTHO to kooperacyjna gra dla dwóch graczy, której celem jest wspólne przeprowadzenie kulki przez wirtualny tor. Jeden z graczy kontroluje ruch w osi **X**, a drugi w osi **Y** — sukces wymaga współpracy, komunikacji oraz dobrej koordynacji.
+        Witamy w interaktywnej analizie gry edukacyjnej **OЯTHO**, dostępnej w Centrum Nauki Kopernik. OЯTHO to kooperacyjna gra dla dwóch graczy, której celem jest wspólne przeprowadzenie kulki przez wirtualny tor. Jeden z graczy kontroluje ruch w osi **X**, a drugi w osi **Y** — sukces wymaga współpracy, komunikacji oraz koordynacji.
     
         Gra stanowi świetne wprowadzenie do **pojęcia układu współrzędnych** i rozwija umiejętności miękkie, takie jak **cierpliwość i współpraca**.
     
@@ -37,9 +37,9 @@ with tabs[0]:
 
                    
         Analizujemy m.in.:
-        - **strategie ruchu** – np. czy gracze poruszają się płynnie, czy "schodkowo",
         - **metryki przejścia toru** – takie jak płynność ruchu (`smoothness`) czy stosunek schodkowych ruchów (`stair_ratio`),
-        - **różnice między torami** – jak strategie zmieniają się w zależności od typu toru.
+        - **różnice między torami** – jak strategie zmieniają się w zależności od typu toru,
+        - **strategie na poszczególnych odcinkach toru** – szukamy optymalnej strategii i ścieżki dla danego toru.
     
         
                  
@@ -56,7 +56,7 @@ with tabs[0]:
 
     - `stair_ratio`: Mierzy stosunek schodkowych ruchów do całkowitych ruchów. Wartości bliskie 0 oznaczają płynny ruch, podczas gdy wartości bliskie 1 wskazują na "schodkowy" ruch.
         $$
-      \\text{stair\\_ratio} = \\frac{\\text{liczba kroków ze zmianą tylko wsółrzędnej X lub tylko współrzędnej Y}}{\\text{liczba wszystkich kroków}}
+      \\text{stair\\_ratio} = \\frac{\\text{liczba kroków ze zmianą tylko współrzędnej X lub tylko współrzędnej Y}}{\\text{liczba wszystkich kroków}}
       $$
 
     """)
@@ -257,13 +257,24 @@ for i in range(2, 9):
             st.pyplot(correlation_analysis_plots["boxplot_smoothness"])
         with col_s9:
             st.pyplot(correlation_analysis_plots["boxplot_stair_ratio"])
-
-        col_s12, col_s13, col_s14 = st.columns([1, 5, 1])
+        
+        _, col_s13, col_s14, _ = st.columns([1, 8, 4, 1])
         with col_s13:
-            st.markdown("Poniższy wykres wizualizuje trasę podzieloną na odcinki, gdzie kolor odcinka odpowiada najskuteczniejszej strategii "
-                        "na tym właśnie fragmencie. Najlepsza strategia jest wybrana na podstawie metryki `trajectory_strategy_bias`."
-                        "Im mniejsza wartość tej metryki, tym lepsza strategia dla danego fragmentu toru.")
             st.pyplot(best_strategy(tor_num))
+        with col_s14:
+            if calculate_toggle:
+                routes_plot = generate_route_plots(tor_num)
+            else:
+                routes_plot = get_route_plots(tor_num)
+            st.image(routes_plot)
+
+        _, col_s15, col_s16, _ = st.columns([1, 8, 4, 1])
+        with col_s15:
+            st.markdown("Powyższy wykres wizualizuje trasę podzieloną na odcinki, gdzie kolor odcinka odpowiada najskuteczniejszej strategii"
+                        "na tym właśnie fragmencie. Najlepsza strategia jest wybrana na podstawie metryki trajectory_strategy_bias. "
+                        "Im mniejsza wartość tej metryki, tym lepsza strategia dla danego fragmentu toru.")
+        with col_s16:
+            st.markdown("Powyższy wykres przedstawia wszystkie trasy (ukończone w przynajmniej 25%), które zostały wykonane przez graczy.")
 
 
         _, col_s10, col_s11, _ = st.columns([1, 4, 4, 1])
@@ -272,12 +283,5 @@ for i in range(2, 9):
         with col_s11:
             st.pyplot(correlation_analysis_plots["spearman_correlation_matrix_not_completed"])
 
-            if calculate_toggle:
-                routes_plot = generate_route_plots(tor_num)
-            else:
-                routes_plot = get_route_plots(tor_num)
-            with col_s10:
-                st.image(routes_plot)
-                st.markdown("Powyższy wykres przedstawia wszystkie trasy (ukończone w przynajmjiej 25%), które zostały wykonane przez graczy.")
 
 
