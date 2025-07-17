@@ -32,17 +32,17 @@ def generate_metrics_plots(tor_num, completed=True):
     # Smoothness histogram
     fig1, ax1 = plt.subplots()
     sns.histplot(hist_smoothnesses, bins=30, kde=True, ax=ax1, color='#f5dd09')
-    ax1.set_title('Rozkład smoothness')
+    ax1.set_title('Rozkład smoothness | Distribution of Smoothness')
     ax1.set_xlabel('Smoothness')
-    ax1.set_ylabel('Liczba wystąpień')
+    ax1.set_ylabel('Liczba wystąpień | Number of Occurrences')
     plots["hist_smoothness"] = fig1
 
     # Stair ratio histogram
     fig2, ax2 = plt.subplots()
     sns.histplot(hist_stair_ratios, bins=30, kde=True, ax=ax2, color='#f5dd09')
-    ax2.set_title('Rozkład stair ratio')
+    ax2.set_title('Rozkład stair ratio | Distribution of Stair Ratio')
     ax2.set_xlabel('Stair Ratio')
-    ax2.set_ylabel('Liczba wystąpień')
+    ax2.set_ylabel('Liczba wystąpień | Number of Occurrences')
     plots["hist_stair_ratio"] = fig2
 
     # Scatter plot: stair ratio vs smoothness
@@ -100,7 +100,7 @@ def generate_route_plots(tor_num):
         points_df = pd.DataFrame(points_data, columns=cols)
         ax.plot(points_df['X'], points_df['Y'], alpha=alpha, color="#f5b209", linewidth=0.5)
 
-    ax.set_title("Najczęstsze ścieżki ruchu (zagęszczenie torów)")
+    ax.set_title("Najczęstsze ścieżki ruchu (zagęszczenie torów) | Most Common Movement Paths (Track Density)")
     ax.set_xlabel("X")
     ax.set_ylabel("Y")
     ax.grid(True)
@@ -131,31 +131,31 @@ def generate_all_tracks_plots():
     # Histogram smoothness - ukończone
     fig1, ax1 = plt.subplots()
     sns.histplot(completed['smoothness'], bins=30, kde=True, ax=ax1, color='#f5dd09')
-    ax1.set_title('Rozkład smoothness (ukończone)')
-    ax1.set_xlabel('Smoothness')
-    ax1.set_ylabel('Liczba wystąpień')
+    ax1.set_title('Rozkład smoothness (ukończone) | Distribution of Smoothness (Completed)')
+    ax1.set_xlabel('Smoothness ')
+    ax1.set_ylabel('Liczba wystąpień | Number of Occurrences')
     plots["hist_smoothness_true"] = fig1
 
     # Histogram smoothness - nieukończone
     fig2, ax2 = plt.subplots()
     sns.histplot(not_completed['smoothness'], bins=30, kde=True, ax=ax2, color='#f5dd09')
-    ax2.set_title('Rozkład smoothness (nieukończone)')
+    ax2.set_title('Rozkład smoothness (nieukończone) | Distribution of Smoothness (Not Completed)')
     ax2.set_xlabel('Smoothness')
-    ax2.set_ylabel('Liczba wystąpień')
+    ax2.set_ylabel('Liczba wystąpień | Number of Occurrences')
     plots["hist_smoothness_false"] = fig2
 
     # Histogram stair_ratio - ukończone
     fig3, ax3 = plt.subplots()
     sns.histplot(completed['stair_ratio'], bins=30, kde=True, ax=ax3, color='#f5dd09')
-    ax3.set_title('Rozkład stair ratio (ukończone)')
+    ax3.set_title('Rozkład stair ratio (ukończone) | Distribution of Stair Ratio (Completed)')
     ax3.set_xlabel('Stair Ratio')
-    ax3.set_ylabel('Liczba wystąpień')
+    ax3.set_ylabel('Liczba wystąpień | Number of Occurrences')
     plots["hist_stair_ratio_true"] = fig3
 
     # Histogram stair_ratio - nieukończone
     fig4, ax4 = plt.subplots()
     sns.histplot(not_completed['stair_ratio'], bins=30, kde=True, ax=ax4, color='#f5dd09')
-    ax4.set_title('Rozkład stair ratio (nieukończone)')
+    ax4.set_title('Rozkład stair ratio (nieukończone) | Distribution of Stair Ratio (Not Completed)')
     ax4.set_xlabel('Stair Ratio')
     ax4.set_ylabel('Liczba wystąpień')
     plots["hist_stair_ratio_false"] = fig4
@@ -170,10 +170,10 @@ def generate_all_tracks_plots():
         palette={True: '#f5dd09', False: '#999999'},
         ax=ax5
     )
-    ax5.set_title('Smoothness vs Stair Ratio (kolor: ukończenie)')
+    ax5.set_title('Smoothness vs Stair Ratio (kolor: ukończenie) | (color: Completion)')
     ax5.set_xlabel('Smoothness')
     ax5.set_ylabel('Stair Ratio')
-    ax5.legend(title="Ukończono")
+    ax5.legend(title="Ukończono | Completed")
     plots["scatter_smoothness_vs_stair_ratio_colored"] = fig5
 
     # Scatter plot smoothness vs stair_ratio (kolor wg track_Completion_percent)
@@ -244,7 +244,7 @@ def generate_correlation_analysis_plots(track_num):
     ax_spearman.set_xticklabels(ax_spearman.get_xticklabels(), rotation=0, ha='center')
     ax_spearman.set_yticklabels(ax_spearman.get_yticklabels(), rotation=90, va='center')
     
-    ax_spearman.set_title("Macierz korelacji (Spearmana) - ukończone")
+    ax_spearman.set_title("Macierz korelacji (Spearmana) - ukończone | Spearman Correlation Matrix - Completed")
     plots["spearman_correlation_matrix_completed"] = fig_spearman
 
     # Spearman correlation matrix - not completed
@@ -255,27 +255,27 @@ def generate_correlation_analysis_plots(track_num):
     yticklabels=display_labels)
     ax_spearman.set_xticklabels(ax_spearman.get_xticklabels(), rotation=0, ha='center')
     ax_spearman.set_yticklabels(ax_spearman.get_yticklabels(), rotation=90, va='center')
-    ax_spearman.set_title("Macierz korelacji (Spearmana) - nieukończone")
+    ax_spearman.set_title("Macierz korelacji (Spearmana) - nieukończone | Spearman Correlation Matrix - Not Completed")
     plots["spearman_correlation_matrix_not_completed"] = fig_spearman
 
     # Boxplot smoothness vs track_Completed
     fig_smooth, ax_smooth = plt.subplots()
     sns.boxplot(x='track_Completed', y='smoothness', data=data, ax=ax_smooth,  boxprops=dict(facecolor='#f5dd09', color='#f5dd09'))
     ax_smooth.set_yscale('log')
-    ax_smooth.set_title("Smoothness vs track_Completed (skala logarytmiczna)")
+    ax_smooth.set_title("Smoothness vs track_Completed (skala logarytmiczna) | Smoothness vs track_Completed (log scale)")
     plots["boxplot_smoothness"] = fig_smooth
 
     # Boxplot stair_ratio vs track_Completed
     fig_stair, ax_stair = plt.subplots()
     sns.boxplot(x='track_Completed', y='stair_ratio', data=data, ax=ax_stair,  boxprops=dict(facecolor='#f5dd09', color='#f5dd09'))
-    ax_stair.set_title("Stair Ratio vs track_Completed")
+    ax_stair.set_title("Stair Ratio vs track_Completed | Stair Ratio vs track_Completed")
     plots["boxplot_stair_ratio"] = fig_stair
 
     # Boxplot time vs track_Completed
     fig_time, ax_time = plt.subplots()
     sns.boxplot(x='track_Completed', y='track_Time_seconds', data=data, ax=ax_time,  boxprops=dict(facecolor='#f5dd09', color='#f5dd09'))
     ax_time.set_yscale('log')
-    ax_time.set_title("Time (sekundy) vs track_Completed (skala logarytmiczna)")
+    ax_time.set_title("Time (sekundy) vs track_Completed (skala logarytmiczna) | Time (seconds) vs track_Completed (log scale)")
     plots["boxplot_time"] = fig_time
 
     # Save all plots
@@ -299,11 +299,11 @@ def best_strategy(track_id):
     strategy_colors = [cmap(pos) for pos in positions] + ['#303030']
     strategy_names = ['SR_0_SM_0', 'SR_0_SM_1', 'SR_1_SM_0', 'SR_1_SM_1', 'brak']
     strategy_labels = [
-        'Niskie stair ratio i niska gładkość',
-        'Niskie stair ratio i wysoka gładkość',
-        'Wysokie stair ratio i niska gładkość',
-        'Wysokie stair ratio i wysoka gładkość',
-        'Brak strategii - mało danych'
+        'Niskie stair ratio i niska gładkość | Low stair ratio and low smoothness',
+        'Niskie stair ratio i wysoka gładkość | Low stair ratio and high smoothness',
+        'Wysokie stair ratio i niska gładkość | High stair ratio and low smoothness',
+        'Wysokie stair ratio i wysoka gładkość | High stair ratio and high smoothness',
+        'Brak strategii - mało danych | No strategy - insufficient data'
     ]
     tracks_df = pd.read_csv('tracks_strategy.csv', sep=';')
 
@@ -340,10 +340,11 @@ def plot_track(track_id, tracks, strategy_names, strategy_colors, strategy_label
 
     ax.legend(
         handles=legend_handles,
-        title='Najlepsza strategia dla danego fragmentu toru',
-        loc='upper left',
-        bbox_to_anchor=(1.05, 1.0),
-        borderaxespad=0.0
+        title='Najlepsza strategia dla danego fragmentu toru | Best Strategy for Track Segment',
+        loc='lower center',
+        bbox_to_anchor=(0.5, -0.25), 
+        borderaxespad=0.0,
+        ncol=1
     )
 
     plt.tight_layout()

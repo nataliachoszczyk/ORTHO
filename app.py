@@ -336,18 +336,9 @@ for i in range(2, 9):
         with col_s9:
             st.pyplot(correlation_analysis_plots["boxplot_stair_ratio"])
         
-        _, col_s13, col_s14, _ = st.columns([1, 8, 4, 1])
+        _, col_s13, _ = st.columns([1, 12, 1])
         with col_s13:
             st.pyplot(best_strategy(tor_num))
-        with col_s14:
-            if calculate_toggle:
-                routes_plot = generate_route_plots(tor_num)
-            else:
-                routes_plot = get_route_plots(tor_num)
-            st.image(routes_plot)
-
-        _, col_s15, col_s16, _ = st.columns([1, 8, 4, 1])
-        with col_s15:
             st.markdown(
                 "Powyższy wykres wizualizuje trasę podzieloną na odcinki, gdzie kolor odcinka odpowiada najskuteczniejszej strategii"
                 " na tym właśnie fragmencie. Najlepsza strategia jest wybrana na podstawie metryki trajectory_strategy_bias. "
@@ -356,10 +347,15 @@ for i in range(2, 9):
                 " for that particular part. The best strategy is selected based on the trajectory_strategy_bias metric."
                 " The lower the value of this metric, the better the strategy for a given segment of the track.\n"
             )
-        with col_s16:
+            if calculate_toggle:
+                routes_plot = generate_route_plots(tor_num)
+            else:
+                routes_plot = get_route_plots(tor_num)
+            st.image(routes_plot)
             st.markdown("""Powyższy wykres przedstawia wszystkie trasy (ukończone w przynajmniej 25%), które zostały wykonane przez graczy.  
                         The above plot shows all the routes (completed at least 25%) that players have taken.""")
 
+        
 
         _, col_s10, col_s11, _ = st.columns([1, 4, 4, 1])
         with col_s10:
